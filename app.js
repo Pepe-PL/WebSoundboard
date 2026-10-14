@@ -15,7 +15,10 @@ const emptyState = document.querySelector('#empty-state');
 const footerState = document.querySelector('#footer-state');
 
 let sounds = [];
+let audioContext = null;
+let activeSource = null;
 let activeAudio = null;
+let activeSound = null;
 let activeButton = null;
 
 function setStatus(message, state = 'ready') {
@@ -59,27 +62,51 @@ function audioUrl(path) {
   return new URL(encodedPath, document.baseURI).href;
 }
 
-function prepareSounds(entries) {
-  return entries.map((sound) => {
-    const audio = new Audio(audioUrl(sound.path));
-    audio.preload = 'auto';
-    audio.addEventListener('ended', () => {
-      if (activeAudio === audio) {
-        stopPlayback();
-        setStatus('Gotowe do odtworzenia');
-      }
-    });
-    audio.addEventListener('error', () => {
-      if (activeAudio === audio) {
-        stopPlayback();
-        setStatus(`Nie można wczytać: ${sound.label}`, 'error');
-      }
-    });
-    return { ...sound, audio };
+function createFallbackAudio(sound) {
+  const audio = new Audio(audioUrl(sound.path));
+  audio.preload = 'auto';
+  audio.addEventListener('ended', () => {
+    if (activeAudio === audio) {
+      stopPlayback();
+      setStatus('Gotowe do odtworzenia');
+    }
   });
+  audio.addEventListener('error', () => {
+    if (activeAudio === audio) {
+      stopPlayback();
+      setStatus(`Nie można wczytać: ${sound.label}`, 'error');
+    }
+  });
+  return audio;
+}
+
+async function prepareSounds(entries) {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return entries.map((sound) => ({ ...sound, audio: createFallbackAudio(sound) }));
+
+  audioContext ??= new AudioContextClass();
+  return Promise.all(entries.map(async (sound) => {
+    try {
+      const response = await fetch(audioUrl(sound.path), { cache: 'force-cache' });
+      if (!response.ok) throw new Error(`Nie można pobrać ${sound.name}`);
+      const buffer = await audioContext.decodeAudioData(await response.arrayBuffer());
+      return { ...sound, buffer };
+    } catch {
+      return { ...sound, audio: createFallbackAudio(sound) };
+    }
+  }));
 }
 
 function stopPlayback() {
+  if (activeSource) {
+    const source = activeSource;
+    activeSource = null;
+    source.onended = null;
+    try {
+      source.stop();
+    } catch {}
+    source.disconnect();
+  }
   if (activeAudio) {
     activeAudio.pause();
     activeAudio.currentTime = 0;
@@ -88,25 +115,49 @@ function stopPlayback() {
   activeButton?.classList.remove('is-playing');
   activeButton?.setAttribute('aria-pressed', 'false');
   activeAudio = null;
+  activeSound = null;
   activeButton = null;
   stopButton.disabled = true;
 }
 
-function playSound(sound, button, audio) {
+function playSound(sound, button) {
   stopPlayback();
-  activeAudio = audio;
+  activeSound = sound;
   activeButton = button;
-  audio.currentTime = 0;
   button.classList.add('is-playing');
   button.querySelector('.sound-button__state').textContent = 'PLAYING';
   button.setAttribute('aria-pressed', 'true');
   stopButton.disabled = false;
   setStatus(`Odtwarzanie: ${sound.label}`);
 
+  if (sound.buffer && audioContext) {
+    const source = audioContext.createBufferSource();
+    source.buffer = sound.buffer;
+    source.connect(audioContext.destination);
+    source.onended = () => {
+      if (activeSource !== source) return;
+      source.disconnect();
+      activeSource = null;
+      activeSound = null;
+      activeButton?.classList.remove('is-playing');
+      activeButton?.setAttribute('aria-pressed', 'false');
+      activeButton = null;
+      stopButton.disabled = true;
+      setStatus('Gotowe do odtworzenia');
+    };
+    activeSource = source;
+    if (audioContext.state === 'suspended') audioContext.resume().catch(() => {});
+    source.start();
+    return;
+  }
+
+  const audio = sound.audio;
+  activeAudio = audio;
+  audio.currentTime = 0;
   const playback = audio.play();
   if (playback && typeof playback.catch === 'function') {
     playback.catch(() => {
-      if (activeAudio !== audio) return;
+      if (activeSound !== sound) return;
       stopPlayback();
       setStatus('Nie udało się odtworzyć dźwięku. Spróbuj ponownie.', 'error');
     });
@@ -137,13 +188,13 @@ function render() {
         <span class="sound-button__format">${sound.extension.toUpperCase()}</span>
       </span>`;
     button.querySelector('.sound-button__name').textContent = sound.label;
-    if (sound.audio === activeAudio) {
+    if (sound === activeSound) {
       button.classList.add('is-playing');
       button.setAttribute('aria-pressed', 'true');
       button.querySelector('.sound-button__state').textContent = 'PLAYING';
       activeButton = button;
     }
-    button.addEventListener('click', () => playSound(sound, button, sound.audio));
+    button.addEventListener('click', () => playSound(sound, button));
     grid.append(button);
   });
 }
@@ -170,7 +221,8 @@ async function loadSounds({ refresh = false } = {}) {
     }
 
     stopPlayback();
-    sounds = prepareSounds(loadedSounds);
+    setStatus('Przygotowywanie dźwięków', 'loading');
+    sounds = await prepareSounds(loadedSounds);
     render();
     const source = refresh ? 'lista zaktualizowana' : 'biblioteka gotowa';
     setStatus(sounds.length ? `${source} / ${sounds.length} dźwięków` : 'Brak plików audio w /sounds');
