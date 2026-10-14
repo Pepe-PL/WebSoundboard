@@ -10,9 +10,10 @@ const statusLine = document.querySelector('#status');
 const count = document.querySelector('#clip-count');
 const search = document.querySelector('#search');
 const refreshButton = document.querySelector('#refresh-button');
-const stopButton = document.querySelector('#stop-button');
 const emptyState = document.querySelector('#empty-state');
 const footerState = document.querySelector('#footer-state');
+const themeButtons = [...document.querySelectorAll('[data-theme-choice]')];
+const systemColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
 
 let sounds = [];
 let audioContext = null;
@@ -20,6 +21,41 @@ let activeSource = null;
 let activeAudio = null;
 let activeSound = null;
 let activeButton = null;
+
+function updateThemeColor(theme) {
+  const isDark = theme === 'dark' || (theme === 'system' && systemColorScheme.matches);
+  document.querySelector('meta[name="theme-color"]').content = isDark ? '#191b18' : '#f3f0e8';
+}
+
+function applyTheme(theme, persist = false) {
+  document.documentElement.dataset.theme = theme;
+  themeButtons.forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme));
+  });
+  updateThemeColor(theme);
+  if (persist) {
+    try {
+      localStorage.setItem('web-soundboard-theme', theme);
+    } catch {}
+  }
+}
+
+let savedTheme = 'system';
+try {
+  const storedTheme = localStorage.getItem('web-soundboard-theme');
+  if (['system', 'light', 'dark'].includes(storedTheme)) savedTheme = storedTheme;
+} catch {}
+applyTheme(savedTheme);
+
+themeButtons.forEach((button) => {
+  button.addEventListener('click', () => applyTheme(button.dataset.themeChoice, true));
+});
+
+const handleSystemThemeChange = () => {
+  if (document.documentElement.dataset.theme === 'system') updateThemeColor('system');
+};
+if (systemColorScheme.addEventListener) systemColorScheme.addEventListener('change', handleSystemThemeChange);
+else systemColorScheme.addListener(handleSystemThemeChange);
 
 function setStatus(message, state = 'ready') {
   statusLine.dataset.state = state;
@@ -117,7 +153,6 @@ function stopPlayback() {
   activeAudio = null;
   activeSound = null;
   activeButton = null;
-  stopButton.disabled = true;
 }
 
 function playSound(sound, button) {
@@ -127,7 +162,6 @@ function playSound(sound, button) {
   button.classList.add('is-playing');
   button.querySelector('.sound-button__state').textContent = 'PLAYING';
   button.setAttribute('aria-pressed', 'true');
-  stopButton.disabled = false;
   setStatus(`Odtwarzanie: ${sound.label}`);
 
   if (sound.buffer && audioContext) {
@@ -142,7 +176,6 @@ function playSound(sound, button) {
       activeButton?.classList.remove('is-playing');
       activeButton?.setAttribute('aria-pressed', 'false');
       activeButton = null;
-      stopButton.disabled = true;
       setStatus('Gotowe do odtworzenia');
     };
     activeSource = source;
@@ -180,7 +213,7 @@ function render() {
     button.innerHTML = `
       <span class="sound-button__top">
         <span class="sound-button__index">SOUND / ${String(index + 1).padStart(2, '0')}</span>
-        <span class="sound-button__play" aria-hidden="true">▶</span>
+        <span class="sound-button__play" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3 1.8v8.4L10 6 3 1.8Z"></path></svg></span>
       </span>
       <span class="sound-button__name"></span>
       <span class="sound-button__bottom">
@@ -240,11 +273,6 @@ async function loadSounds({ refresh = false } = {}) {
 
 search.addEventListener('input', render);
 refreshButton.addEventListener('click', () => loadSounds({ refresh: true }));
-stopButton.addEventListener('click', () => {
-  stopPlayback();
-  setStatus('Odtwarzanie zatrzymane');
-});
-
 document.addEventListener('keydown', (event) => {
   if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
     event.preventDefault();
