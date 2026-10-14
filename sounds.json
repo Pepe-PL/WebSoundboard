@@ -1,14 +1,146 @@
 [
   {
+    "name": "999-social-credit-siren.mp3",
+    "path": "sounds/999-social-credit-siren.mp3",
+    "label": "999 social credit siren",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "among-us-role-reveal-sound.mp3",
+    "path": "sounds/among-us-role-reveal-sound.mp3",
+    "label": "among us role reveal sound",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "applepay.mp3",
+    "path": "sounds/applepay.mp3",
+    "label": "applepay",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "baby-laughing-meme.mp3",
+    "path": "sounds/baby-laughing-meme.mp3",
+    "label": "baby laughing meme",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "bruh.mp3",
+    "path": "sounds/bruh.mp3",
+    "label": "bruh",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "cat-laugh-meme-1.mp3",
+    "path": "sounds/cat-laugh-meme-1.mp3",
+    "label": "cat laugh meme 1",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "dexter-meme.mp3",
+    "path": "sounds/dexter-meme.mp3",
+    "label": "dexter meme",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "discord-notification.mp3",
+    "path": "sounds/discord-notification.mp3",
+    "label": "discord notification",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "emotional-damage-meme.mp3",
+    "path": "sounds/emotional-damage-meme.mp3",
+    "label": "emotional damage meme",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "error.mp3",
+    "path": "sounds/error.mp3",
+    "label": "error",
+    "type": "audio/mpeg"
+  },
+  {
     "name": "Fahhh.mp3",
     "path": "sounds/Fahhh.mp3",
     "label": "Fahhh",
     "type": "audio/mpeg"
   },
   {
+    "name": "fart-meme-sound.mp3",
+    "path": "sounds/fart-meme-sound.mp3",
+    "label": "fart meme sound",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "galaxy-meme.mp3",
+    "path": "sounds/galaxy-meme.mp3",
+    "label": "galaxy meme",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "guardian sound effect hd.mp3",
+    "path": "sounds/guardian sound effect hd.mp3",
+    "label": "guardian sound effect hd",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "metal-gear-alert-sound.mp3",
+    "path": "sounds/metal-gear-alert-sound.mp3",
+    "label": "metal gear alert sound",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "metal-pipe-clang.mp3",
+    "path": "sounds/metal-pipe-clang.mp3",
+    "label": "metal pipe clang",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "oh-my-god-meme.mp3",
+    "path": "sounds/oh-my-god-meme.mp3",
+    "label": "oh my god meme",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "otoznie.mp3",
+    "path": "sounds/otoznie.mp3",
+    "label": "otoznie",
+    "type": "audio/mpeg"
+  },
+  {
     "name": "Płakał.mp3",
     "path": "sounds/Płakał.mp3",
     "label": "Płakał",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "rizz-sound-effect.mp3",
+    "path": "sounds/rizz-sound-effect.mp3",
+    "label": "rizz sound effect",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "shocked-sound-effect.mp3",
+    "path": "sounds/shocked-sound-effect.mp3",
+    "label": "shocked sound effect",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "sike-1.mp3",
+    "path": "sounds/sike-1.mp3",
+    "label": "sike 1",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "sike-thats-the-wrong-number-meme.mp3",
+    "path": "sounds/sike-thats-the-wrong-number-meme.mp3",
+    "label": "sike thats the wrong number meme",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "snore-mimimimimimi.mp3",
+    "path": "sounds/snore-mimimimimimi.mp3",
+    "label": "snore mimimimimimi",
     "type": "audio/mpeg"
   },
   {
