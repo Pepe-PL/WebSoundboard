@@ -1,0 +1,57 @@
+name: Generate sounds manifest
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sounds/**'
+      - '.github/workflows/generate-sounds.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Generate sounds.json
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const mimeTypes = {
+            '.aac': 'audio/aac',
+            '.m4a': 'audio/mp4',
+            '.mp3': 'audio/mpeg',
+            '.oga': 'audio/ogg',
+            '.ogg': 'audio/ogg',
+            '.wav': 'audio/wav'
+          };
+          const files = fs.readdirSync('sounds', { withFileTypes: true })
+            .filter((entry) => entry.isFile() && mimeTypes[path.extname(entry.name).toLowerCase()])
+            .map((entry) => ({
+              name: entry.name,
+              path: `sounds/${entry.name}`,
+              label: path.parse(entry.name).name.replace(/[_-]+/g, ' ').trim(),
+              type: mimeTypes[path.extname(entry.name).toLowerCase()]
+            }))
+            .sort((first, second) => first.name.localeCompare(second.name, 'pl'));
+          fs.writeFileSync('sounds.json', `${JSON.stringify(files, null, 2)}\n`);
+          NODE
+
+      - name: Commit updated manifest
+        run: |
+          if git diff --quiet -- sounds.json; then
+            echo "sounds.json is already up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sounds.json
+          git commit -m "Update sounds manifest"
+          git push

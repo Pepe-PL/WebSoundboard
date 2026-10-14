@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Fahhh.mp3",
+    "path": "sounds/Fahhh.mp3",
+    "label": "Fahhh",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "Płakał.mp3",
+    "path": "sounds/Płakał.mp3",
+    "label": "Płakał",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "Vine boom.mp3",
+    "path": "sounds/Vine boom.mp3",
+    "label": "Vine boom",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "What da dog doin.mp3",
+    "path": "sounds/What da dog doin.mp3",
+    "label": "What da dog doin",
+    "type": "audio/mpeg"
+  }
+]
