@@ -144,6 +144,12 @@
     "type": "audio/mpeg"
   },
   {
+    "name": "tuco-get-out.mp3",
+    "path": "sounds/tuco-get-out.mp3",
+    "label": "tuco get out",
+    "type": "audio/mpeg"
+  },
+  {
     "name": "Vine boom.mp3",
     "path": "sounds/Vine boom.mp3",
     "label": "Vine boom",
