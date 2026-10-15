@@ -59,6 +59,14 @@
           </div>
         </section>
 
+        <section class="category-strip" aria-label="Filtruj dźwięki według kategorii">
+          <div class="category-tabs" id="category-tabs" role="tablist" aria-label="Kategorie"></div>
+          <button class="add-category-button" id="add-category-button" type="button" aria-label="Dodaj kategorię" title="Nowa kategoria">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"></path></svg>
+            <span>Nowa kategoria</span>
+          </button>
+        </section>
+
         <div class="status-line" id="status" role="status" aria-live="polite">
           <span class="status-line__pulse" aria-hidden="true"></span>
           <span>Ładowanie biblioteki</span>
@@ -67,6 +75,31 @@
         <section class="sound-grid" id="sound-grid" aria-label="Dźwięki" aria-busy="true"></section>
         <p class="empty-state" id="empty-state" hidden>Nie znaleziono pasujących dźwięków.</p>
       </main>
+
+      <dialog class="category-dialog" id="category-dialog" aria-labelledby="category-dialog-title">
+        <form class="category-dialog__surface" id="category-dialog-form">
+          <div class="category-dialog__header">
+            <div>
+              <p class="eyebrow">SOUND ORGANIZER</p>
+              <h2 id="category-dialog-title">Nowa kategoria</h2>
+            </div>
+            <button class="dialog-close" id="category-dialog-close" type="button" aria-label="Zamknij">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"></path></svg>
+            </button>
+          </div>
+          <p class="category-dialog__description" id="category-dialog-description"></p>
+          <label class="category-name-field" id="category-name-field">
+            <span>Nazwa kategorii</span>
+            <input id="category-name" type="text" maxlength="32" autocomplete="off" required />
+          </label>
+          <p class="category-dialog__error" id="category-dialog-error" role="alert" hidden></p>
+          <div class="category-options" id="category-options" hidden></div>
+          <div class="category-dialog__actions">
+            <button class="dialog-cancel" id="category-dialog-cancel" type="button">Anuluj</button>
+            <button class="dialog-save" id="category-dialog-save" type="submit">Dodaj kategorię</button>
+          </div>
+        </form>
+      </dialog>
 
       <footer class="footer">
         <a class="footer__repo" href="https://github.com/Pepe-PL/WebSoundboard" target="_blank" rel="noopener noreferrer">
