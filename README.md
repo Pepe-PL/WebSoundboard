@@ -27,7 +27,7 @@ Supported formats: MP3, WAV, OGG, M4A, AAC, and OGA. Each filename becomes the s
 
 ## Categories
 
-Create categories in the app, assign one or more to each sound, and choose a color for each category. Assignments and colors are stored in the browser on that device; they are not committed to the fork or synced to other devices.
+Mark sounds as favorites to find them from the **Favorites** tab. Create categories, assign one or more to each sound, and choose a color for every category. Categories can be renamed, reordered, and deleted; deleting a category removes only that assignment, so sounds without another category return to **Uncategorized**. Favorites, categories, colors, and the master volume are saved in the browser on that device; they are not committed to the fork or synced to other devices.
 
 ## On your phone
 

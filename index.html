@@ -52,6 +52,11 @@
             <input id="search" type="search" placeholder="Search sounds" autocomplete="off" />
             <kbd class="search-box__key" aria-hidden="true">/</kbd>
           </label>
+          <label class="volume-control" for="master-volume" title="Master volume">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"></path><path d="M16 9a5 5 0 0 1 0 6m3-9a9 9 0 0 1 0 12"></path></svg>
+            <input id="master-volume" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Master volume" />
+            <output id="volume-value" for="master-volume">80%</output>
+          </label>
           <div class="control-actions">
             <button class="utility-button utility-button--refresh" id="refresh-button" type="button">
               <span class="refresh-symbol" aria-hidden="true">↻</span> Refresh
@@ -98,6 +103,19 @@
           </label>
           <p class="category-dialog__error" id="category-dialog-error" role="alert" hidden></p>
           <div class="category-options" id="category-options" hidden></div>
+          <div class="category-management-controls" id="category-management-controls" hidden>
+            <div class="category-order-controls">
+              <button class="category-order-button" id="category-move-left" type="button" aria-label="Move category earlier" title="Move earlier">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12.5 4-6 6 6 6"></path></svg>
+                <span>Move earlier</span>
+              </button>
+              <button class="category-order-button" id="category-move-right" type="button" aria-label="Move category later" title="Move later">
+                <span>Move later</span>
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4 6 6-6 6"></path></svg>
+              </button>
+            </div>
+            <button class="category-delete-button" id="category-delete" type="button">Delete category</button>
+          </div>
           <div class="category-dialog__actions">
             <button class="dialog-cancel" id="category-dialog-cancel" type="button">Cancel</button>
             <button class="dialog-save" id="category-dialog-save" type="submit">Add category</button>

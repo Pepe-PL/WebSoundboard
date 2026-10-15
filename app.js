@@ -36,10 +36,15 @@ const categoryNameInput = document.querySelector('#category-name');
 const categoryColorField = document.querySelector('#category-color-field');
 const categoryColorInput = document.querySelector('#category-color');
 const categoryOptions = document.querySelector('#category-options');
+const categoryManagementControls = document.querySelector('#category-management-controls');
 const categoryDialogSave = document.querySelector('#category-dialog-save');
+const masterVolumeInput = document.querySelector('#master-volume');
+const volumeValue = document.querySelector('#volume-value');
 
 let sounds = [];
 let audioContext = null;
+let masterGain = null;
+let masterVolume = 0.8;
 let activeSource = null;
 let activeAudio = null;
 let activeSound = null;
@@ -47,7 +52,8 @@ let activeButton = null;
 let activeCategory = 'all';
 let categoryDialogMode = 'create';
 let categoryTargetSound = null;
-let categoryState = { categories: [], assignments: {} };
+let categoryTargetCategory = null;
+let categoryState = { categories: [], assignments: {}, favorites: [] };
 
 function loadCategoryState() {
   try {
@@ -70,7 +76,10 @@ function loadCategoryState() {
         if (validIds.length) assignments[path] = validIds;
       });
     }
-    categoryState = { categories, assignments };
+    const favorites = Array.isArray(saved.favorites)
+      ? [...new Set(saved.favorites.filter((path) => typeof path === 'string'))]
+      : [];
+    categoryState = { categories, assignments, favorites };
   } catch {}
 }
 
@@ -88,6 +97,10 @@ function categoryIdsForSound(sound) {
   return categoryState.assignments[sound.path] || [];
 }
 
+function isFavorite(sound) {
+  return categoryState.favorites.includes(sound.path);
+}
+
 function textColorForCategory(hexColor) {
   const channels = hexColor.slice(1).match(/.{2}/g).map((channel) => parseInt(channel, 16) / 255);
   const linearChannels = channels.map((channel) => channel <= 0.04045
@@ -100,6 +113,7 @@ function textColorForCategory(hexColor) {
 function renderCategoryTabs() {
   const categories = [
     { id: 'all', name: 'All' },
+    { id: 'favorites', name: 'Favorites' },
     { id: 'uncategorized', name: 'Uncategorized' },
     ...categoryState.categories
   ];
@@ -135,6 +149,15 @@ function renderCategoryTabs() {
       });
       colorPicker.append(input);
       group.append(colorPicker);
+
+      const manageButton = document.createElement('button');
+      manageButton.className = 'category-manage-button';
+      manageButton.type = 'button';
+      manageButton.setAttribute('aria-label', `Manage ${category.name} category`);
+      manageButton.title = `Manage ${category.name}`;
+      manageButton.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8.3 2.8h3.4l.5 1.8 1.6.9 1.8-.5 1.7 2.9-1.3 1.3v1.8l1.3 1.3-1.7 2.9-1.8-.5-1.6.9-.5 1.8H8.3l-.5-1.8-1.6-.9-1.8.5-1.7-2.9L4 10.8V9L2.7 7.7l1.7-2.9 1.8.5 1.6-.9z"></path><circle cx="10" cy="9.9" r="2.3"></circle></svg>';
+      manageButton.addEventListener('click', () => showCategoryDialog('manage', category));
+      group.append(manageButton);
       categoryTabs.append(group);
       return;
     }
@@ -144,12 +167,13 @@ function renderCategoryTabs() {
 
 function showCategoryDialog(mode, sound = null) {
   categoryDialogMode = mode;
-  categoryTargetSound = sound;
+  categoryTargetSound = mode === 'manage' ? null : sound;
+  categoryTargetCategory = mode === 'manage' ? sound : null;
   categoryDialogError.hidden = true;
   categoryDialogError.textContent = '';
   categoryOptions.replaceChildren();
   categoryDialogSave.disabled = false;
-  categoryNameInput.required = mode === 'create';
+  categoryNameInput.required = mode !== 'assign';
 
   if (mode === 'create') {
     categoryDialogTitle.textContent = 'New category';
@@ -159,15 +183,19 @@ function showCategoryDialog(mode, sound = null) {
     categoryNameField.hidden = false;
     categoryColorField.hidden = false;
     categoryOptions.hidden = true;
+    categoryManagementControls.hidden = true;
+    categoryManagementControls.hidden = true;
     categoryNameInput.value = '';
     categoryColorInput.value = CATEGORY_COLORS[categoryState.categories.length % CATEGORY_COLORS.length];
     categoryDialogSave.textContent = 'Add category';
-  } else {
+  } else if (mode === 'assign') {
     categoryDialogTitle.textContent = 'Sound categories';
     categoryDialogDescription.textContent = `Choose categories for "${sound.label}".`;
     categoryNameField.hidden = true;
     categoryColorField.hidden = true;
     categoryOptions.hidden = false;
+    categoryManagementControls.hidden = true;
+    categoryManagementControls.hidden = true;
     categoryDialogSave.textContent = 'Save';
 
     if (!categoryState.categories.length) {
@@ -208,6 +236,19 @@ function showCategoryDialog(mode, sound = null) {
         categoryOptions.append(choice);
       });
     }
+  } else {
+    const categoryIndex = categoryState.categories.findIndex((category) => category.id === sound.id);
+    categoryDialogTitle.textContent = 'Category settings';
+    categoryDialogDescription.textContent = 'Rename, recolor, reorder, or remove this category.';
+    categoryNameField.hidden = false;
+    categoryColorField.hidden = false;
+    categoryOptions.hidden = true;
+    categoryManagementControls.hidden = false;
+    categoryNameInput.value = sound.name;
+    categoryColorInput.value = sound.color;
+    categoryDialogSave.textContent = 'Save changes';
+    document.querySelector('#category-move-left').disabled = categoryIndex <= 0;
+    document.querySelector('#category-move-right').disabled = categoryIndex >= categoryState.categories.length - 1;
   }
 
   if (!categoryDialog.open) categoryDialog.showModal();
@@ -242,11 +283,49 @@ function createCategory(name) {
   render();
 }
 
+function moveCategory(direction) {
+  if (!categoryTargetCategory) return;
+  const index = categoryState.categories.findIndex((category) => category.id === categoryTargetCategory.id);
+  const nextIndex = index + direction;
+  if (index < 0 || nextIndex < 0 || nextIndex >= categoryState.categories.length) return;
+
+  [categoryState.categories[index], categoryState.categories[nextIndex]] = [
+    categoryState.categories[nextIndex],
+    categoryState.categories[index]
+  ];
+  saveCategoryState();
+  const category = categoryState.categories[nextIndex];
+  renderCategoryTabs();
+  render();
+  showCategoryDialog('manage', category);
+}
+
+function deleteCategory() {
+  if (!categoryTargetCategory || !window.confirm(`Delete "${categoryTargetCategory.name}"? Its sounds will become uncategorized unless they have another category.`)) return;
+
+  const deletedId = categoryTargetCategory.id;
+  categoryState.categories = categoryState.categories.filter((category) => category.id !== deletedId);
+  Object.entries(categoryState.assignments).forEach(([path, ids]) => {
+    const remainingIds = ids.filter((id) => id !== deletedId);
+    if (remainingIds.length) categoryState.assignments[path] = remainingIds;
+    else delete categoryState.assignments[path];
+  });
+  if (activeCategory === deletedId) activeCategory = 'all';
+  saveCategoryState();
+  categoryDialog.close();
+  categoryTargetCategory = null;
+  renderCategoryTabs();
+  render();
+}
+
 loadCategoryState();
 
 addCategoryButton.addEventListener('click', () => showCategoryDialog('create'));
 document.querySelector('#category-dialog-close').addEventListener('click', () => categoryDialog.close());
 document.querySelector('#category-dialog-cancel').addEventListener('click', () => categoryDialog.close());
+document.querySelector('#category-move-left').addEventListener('click', () => moveCategory(-1));
+document.querySelector('#category-move-right').addEventListener('click', () => moveCategory(1));
+document.querySelector('#category-delete').addEventListener('click', deleteCategory);
 categoryDialog.addEventListener('click', (event) => {
   if (event.target === categoryDialog) categoryDialog.close();
 });
@@ -254,6 +333,32 @@ categoryDialogForm.addEventListener('submit', (event) => {
   event.preventDefault();
   if (categoryDialogMode === 'create') {
     createCategory(categoryNameInput.value);
+    return;
+  }
+  if (categoryDialogMode === 'manage') {
+    const normalizedName = categoryNameInput.value.trim();
+    if (!normalizedName) {
+      categoryDialogError.textContent = 'Enter a category name.';
+      categoryDialogError.hidden = false;
+      return;
+    }
+    if (categoryState.categories.some((category) =>
+      category.id !== categoryTargetCategory?.id
+      && category.name.toLocaleLowerCase('en') === normalizedName.toLocaleLowerCase('en')
+    )) {
+      categoryDialogError.textContent = 'A category with that name already exists.';
+      categoryDialogError.hidden = false;
+      return;
+    }
+    if (!categoryTargetCategory) return;
+
+    categoryTargetCategory.name = normalizedName;
+    categoryTargetCategory.color = categoryColorInput.value.toLowerCase();
+    saveCategoryState();
+    categoryDialog.close();
+    categoryTargetCategory = null;
+    renderCategoryTabs();
+    render();
     return;
   }
   if (!categoryTargetSound) return;
@@ -307,6 +412,32 @@ const handleSystemThemeChange = () => {
 if (systemColorScheme.addEventListener) systemColorScheme.addEventListener('change', handleSystemThemeChange);
 else systemColorScheme.addListener(handleSystemThemeChange);
 
+try {
+  const storedVolume = Number(localStorage.getItem('web-soundboard-volume'));
+  if (Number.isFinite(storedVolume) && localStorage.getItem('web-soundboard-volume') !== null) {
+    masterVolume = Math.min(1, Math.max(0, storedVolume));
+  }
+} catch {}
+
+function setMasterVolume(value, persist = true) {
+  masterVolume = Math.min(1, Math.max(0, Number(value)));
+  masterVolumeInput.value = String(masterVolume);
+  volumeValue.value = `${Math.round(masterVolume * 100)}%`;
+  volumeValue.textContent = volumeValue.value;
+  if (masterGain && audioContext) masterGain.gain.setTargetAtTime(masterVolume, audioContext.currentTime, 0.015);
+  sounds.forEach((sound) => {
+    if (sound.audio) sound.audio.volume = masterVolume;
+  });
+  if (persist) {
+    try {
+      localStorage.setItem('web-soundboard-volume', String(masterVolume));
+    } catch {}
+  }
+}
+
+setMasterVolume(masterVolume, false);
+masterVolumeInput.addEventListener('input', () => setMasterVolume(masterVolumeInput.value));
+
 function setStatus(message, state = 'ready') {
   statusLine.dataset.state = state;
   statusLine.lastElementChild.textContent = message;
@@ -338,7 +469,7 @@ async function fetchManifest() {
 
 async function fetchFromGitHub() {
   const response = await fetch(API_URL, { cache: 'no-store', headers: { Accept: 'application/vnd.github+json' } });
-  if (!response.ok) throw new Error('GitHub API jest chwilowo niedostępne.');
+  if (!response.ok) throw new Error('GitHub API is temporarily unavailable.');
   const files = await response.json();
   return normaliseList(files.filter((file) => file.type === 'file').map((file) => ({ name: file.name, path: file.path })));
 }
@@ -351,6 +482,7 @@ function audioUrl(path) {
 function createFallbackAudio(sound) {
   const audio = new Audio(audioUrl(sound.path));
   audio.preload = 'auto';
+  audio.volume = masterVolume;
   audio.addEventListener('ended', () => {
     if (activeAudio === audio) {
       stopPlayback();
@@ -429,6 +561,11 @@ function prepareSounds(entries) {
   }
 
   audioContext ??= new AudioContextClass();
+  if (!masterGain) {
+    masterGain = audioContext.createGain();
+    masterGain.gain.value = masterVolume;
+    masterGain.connect(audioContext.destination);
+  }
   void preloadSoundBuffers(preparedSounds);
   return preparedSounds;
 }
@@ -473,7 +610,7 @@ function playSound(sound, button) {
   if (sound.buffer && audioContext) {
     const source = audioContext.createBufferSource();
     source.buffer = sound.buffer;
-    source.connect(audioContext.destination);
+    source.connect(masterGain || audioContext.destination);
     source.onended = () => {
       if (activeSource !== source) return;
       source.disconnect();
@@ -511,7 +648,11 @@ function render() {
     const matchesSearch = sound.label.toLocaleLowerCase('en').includes(query);
     const assignedIds = categoryIdsForSound(sound);
     const matchesCategory = activeCategory === 'all'
-      || (activeCategory === 'uncategorized' ? assignedIds.length === 0 : assignedIds.includes(activeCategory));
+      || (activeCategory === 'favorites'
+        ? isFavorite(sound)
+        : activeCategory === 'uncategorized'
+          ? assignedIds.length === 0
+          : assignedIds.includes(activeCategory));
     return matchesSearch && matchesCategory;
   });
   grid.replaceChildren();
@@ -519,9 +660,11 @@ function render() {
   emptyState.hidden = visibleSounds.length > 0;
   emptyState.textContent = query
     ? 'No matching sounds found.'
-    : activeCategory === 'uncategorized'
-      ? 'All sounds are already assigned to categories.'
-      : 'There are no sounds in this category yet.';
+    : activeCategory === 'favorites'
+      ? 'No favorite sounds yet.'
+      : activeCategory === 'uncategorized'
+        ? 'All sounds are already assigned to categories.'
+        : 'There are no sounds in this category yet.';
 
   visibleSounds.forEach((sound, index) => {
     const card = document.createElement('article');
@@ -560,6 +703,21 @@ function render() {
     }
     button.addEventListener('click', () => playSound(sound, button));
 
+    const favoriteButton = document.createElement('button');
+    favoriteButton.className = 'favorite-button';
+    favoriteButton.type = 'button';
+    favoriteButton.setAttribute('aria-pressed', String(isFavorite(sound)));
+    favoriteButton.setAttribute('aria-label', `${isFavorite(sound) ? 'Remove' : 'Add'} ${sound.label} ${isFavorite(sound) ? 'from' : 'to'} favorites`);
+    favoriteButton.title = isFavorite(sound) ? 'Remove from favorites' : 'Add to favorites';
+    favoriteButton.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 17s-6.5-3.8-6.5-9A3.7 3.7 0 0 1 10 5.8 3.7 3.7 0 0 1 16.5 8c0 5.2-6.5 9-6.5 9Z"></path></svg>';
+    favoriteButton.addEventListener('click', () => {
+      if (isFavorite(sound)) categoryState.favorites = categoryState.favorites.filter((path) => path !== sound.path);
+      else categoryState.favorites.push(sound.path);
+      saveCategoryState();
+      renderCategoryTabs();
+      render();
+    });
+
     const categoryButton = document.createElement('button');
     categoryButton.className = 'sound-category-button';
     categoryButton.type = 'button';
@@ -571,7 +729,7 @@ function render() {
       .map((category) => category.name);
     categoryButton.querySelector('.sound-category-button__label').textContent = assignedNames.join(' / ') || 'Add to category';
     categoryButton.addEventListener('click', () => showCategoryDialog('assign', sound));
-    card.append(button, categoryButton);
+    card.append(button, favoriteButton, categoryButton);
     grid.append(card);
   });
 }
