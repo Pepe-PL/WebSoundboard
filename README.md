@@ -1,21 +1,45 @@
-# WebSoundboard
+<div align="center">
+  <img src="icon.svg" width="150" alt="WebSoundboard icon" />
+  <h1>WebSoundboard</h1>
+  <p>A fast, phone-friendly meme soundboard you can make your own.</p>
+  <p>
+    <a href="https://github.com/Pepe-PL/WebSoundboard"><img alt="Release date" src="https://img.shields.io/github/release-date/Pepe-PL/WebSoundboard" /></a>
+    <a href="https://github.com/Pepe-PL/WebSoundboard/forks"><img alt="Forks" src="https://img.shields.io/github/forks/Pepe-PL/WebSoundboard" /></a>
+  </p>
+</div>
 
-A mobile soundboard hosted as a static GitHub Pages site.
+Fork this project, add your own audio files, and publish your personal soundboard with GitHub Pages. No server or build step is required.
 
-## Setup
+## Create your soundboard
 
-1. Open **Settings → Pages** in the repository.
-2. Set the source to branch `main` and folder `/(root)`.
-3. After deployment, open `https://pepe-pl.github.io/WebSoundboard/`.
+1. Click **Fork** at the top of this repository to create your copy.
+2. In your fork, add audio files to the `sounds/` folder. You can use **Add file → Upload files** or add the files locally and push them to `main`.
+3. Open **Actions** and allow workflows to run. The **Generate sounds manifest** workflow creates `sounds.json` when files in `sounds/` change.
+4. Open **Settings → Pages** and select **Deploy from a branch**, branch `main`, folder `/(root)`. Save the setting.
+5. When the Pages workflow finishes, open `https://YOUR-USERNAME.github.io/YOUR-REPOSITORY/`.
 
-## Adding sounds
+If the manifest workflow cannot commit `sounds.json`, open **Settings → Actions → General → Workflow permissions** in your fork and allow **Read and write permissions**.
 
-Add a supported audio file to `sounds/` and push to `main`. The **Generate sounds manifest** workflow updates `sounds.json`; it can also be run manually from **Actions**. **Refresh** fetches the current file list from GitHub API and falls back to the manifest when the API is unavailable.
+## Add or update sounds
 
-Supported formats: MP3, WAV, OGG, M4A, AAC, and OGA. The filename becomes the button label.
+Put supported audio files in `sounds/` and push to `main`. The manifest updates automatically; you can also run **Generate sounds manifest** manually from **Actions**. The **Refresh** button asks the current repository for its sound list and falls back to `sounds.json`, so it works in forks too.
 
-Create categories in the app and assign sounds to them. Categories are saved in the browser on the current device; they are not synced to GitHub or other devices. Sounds appear immediately while their audio is decoded independently in the background. Category colors can be changed from the category tab or the assignment dialog.
+Supported formats: MP3, WAV, OGG, M4A, AAC, and OGA. Each filename becomes the sound button label. Spaces and non-ASCII characters in filenames are supported.
 
-## Mobile and offline use
+## Categories
 
-In your phone browser, choose **Add to Home Screen**. The service worker caches the app and visited sounds so previously loaded clips can work offline. On iOS, add the shortcut from Safari's Share menu.
+Create categories in the app, assign one or more to each sound, and choose a color for each category. Assignments and colors are stored in the browser on that device; they are not committed to the fork or synced to other devices.
+
+## On your phone
+
+Open your Pages URL in the browser and choose **Add to Home Screen**. Previously loaded sounds can be available offline. On iOS, add the shortcut from Safari's **Share** menu.
+
+## Run locally
+
+From the repository folder, start any static file server, for example:
+
+```sh
+python -m http.server 8080
+```
+
+Then open `http://localhost:8080`. If Python is not installed, use a static server available on your system.

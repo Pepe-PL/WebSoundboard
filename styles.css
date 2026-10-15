@@ -42,7 +42,7 @@
 * { box-sizing: border-box; }
 
 body {
-  min-width: 320px;
+  min-width: 0;
   min-height: 100vh;
   margin: 0;
   color: var(--ink);
@@ -334,6 +334,10 @@ h1 span { color: var(--red); }
   .add-category-button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
   .sound-button { min-height: 145px; padding: 12px; }
   .sound-button__name { font-size: 27px; }
+}
+
+@media (min-width: 391px) and (max-width: 480px) {
+  h1 { font-size: 64px; }
 }
 
 @media (max-width: 390px) {

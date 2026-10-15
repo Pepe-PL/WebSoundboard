@@ -2,9 +2,18 @@ const REPO_OWNER = 'Pepe-PL';
 const REPO_NAME = 'WebSoundboard';
 const BRANCH = 'main';
 const MANIFEST_URL = new URL('./sounds.json', document.baseURI);
-const API_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/sounds?ref=${BRANCH}`;
 const SUPPORTED_EXTENSIONS = new Set(['mp3', 'wav', 'ogg', 'm4a', 'aac', 'oga']);
 const CATEGORY_COLORS = ['#d6f05a', '#f05b42', '#66c6d1', '#f6c950', '#ed9ec0'];
+
+function getRepositoryApiUrl(hostname, pathname) {
+  const pagesOwner = hostname.match(/^([^.]+)\.github\.io$/i)?.[1];
+  const pagesRepository = pathname.split('/').filter(Boolean)[0];
+  const owner = pagesOwner || REPO_OWNER;
+  const repository = pagesOwner && pagesRepository ? decodeURIComponent(pagesRepository) : REPO_NAME;
+  return `https://api.github.com/repos/${owner}/${repository}/contents/sounds?ref=${BRANCH}`;
+}
+
+const API_URL = getRepositoryApiUrl(location.hostname, location.pathname);
 
 const grid = document.querySelector('#sound-grid');
 const statusLine = document.querySelector('#status');
