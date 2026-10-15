@@ -21,7 +21,7 @@ If the manifest workflow cannot commit `sounds.json`, open **Settings → Action
 
 ## Add or update sounds
 
-Put supported audio files in `sounds/` and push to `main`. The manifest updates automatically; you can also run **Generate sounds manifest** manually from **Actions**. The **Refresh** button asks the current repository for its sound list and falls back to `sounds.json`, so it works in forks too.
+Put supported audio files in `sounds/` and push to `main`. The manifest updates automatically; you can also run **Generate sounds manifest** manually from **Actions**. On startup, the app reads the live manifest from the repository and falls back to the Pages copy if GitHub is unavailable. **Refresh** asks the current repository for its sound list, so it works in forks too. New clips can appear before Pages finishes deploying; their audio is fetched from GitHub until the Pages copy is ready.
 
 Supported formats: MP3, WAV, OGG, M4A, AAC, and OGA. Each filename becomes the sound button label. Spaces and non-ASCII characters in filenames are supported.
 
