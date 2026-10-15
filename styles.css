@@ -87,11 +87,10 @@ button { color: inherit; }
 .wordmark__mark {
   width: 30px;
   height: 30px;
-  display: grid;
-  place-items: center;
-  background: var(--ink);
-  color: var(--paper);
-  font: 800 14px var(--display);
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  object-fit: contain;
 }
 
 .connection { display: flex; align-items: center; gap: 8px; color: var(--muted); }

@@ -1,9 +1,8 @@
 <div align="center">
-  <img src="icon.svg" width="150" alt="WebSoundboard icon" />
+  <img src="icon.svg?v=3f2b517" width="150" alt="WebSoundboard icon" />
   <h1>WebSoundboard</h1>
   <p>A fast, phone-friendly meme soundboard you can make your own.</p>
   <p>
-    <a href="https://github.com/Pepe-PL/WebSoundboard"><img alt="Release date" src="https://img.shields.io/github/release-date/Pepe-PL/WebSoundboard" /></a>
     <a href="https://github.com/Pepe-PL/WebSoundboard/forks"><img alt="Forks" src="https://img.shields.io/github/forks/Pepe-PL/WebSoundboard" /></a>
   </p>
 </div>
