@@ -451,7 +451,13 @@ function toSound(entry) {
 
   const baseName = entry.name.replace(/\.[^.]+$/, '');
   const label = (typeof entry.label === 'string' ? entry.label : baseName).replace(/[_-]+/g, ' ').trim();
-  return { name: entry.name, label, path, extension };
+  return {
+    name: entry.name,
+    label,
+    path,
+    extension,
+    downloadUrl: typeof entry.download_url === 'string' ? entry.download_url : null
+  };
 }
 
 function normaliseList(entries) {
@@ -460,18 +466,34 @@ function normaliseList(entries) {
 }
 
 async function fetchManifest() {
-  const url = new URL(MANIFEST_URL);
-  url.searchParams.set('v', Date.now().toString());
-  const response = await fetch(url, { cache: 'no-store' });
-  if (!response.ok) throw new Error('The sound manifest is unavailable.');
-  return normaliseList(await response.json());
+  const sources = [
+    `https://raw.githubusercontent.com/${apiOwner}/${apiRepository}/${BRANCH}/sounds.json`,
+    MANIFEST_URL
+  ];
+  let lastError;
+  for (const source of sources) {
+    const url = new URL(source);
+    url.searchParams.set('v', Date.now().toString());
+    try {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) throw new Error('The sound manifest is unavailable.');
+      return normaliseList(await response.json());
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError || new Error('The sound manifest is unavailable.');
 }
 
 async function fetchFromGitHub() {
   const response = await fetch(API_URL, { cache: 'no-store', headers: { Accept: 'application/vnd.github+json' } });
   if (!response.ok) throw new Error('GitHub API is temporarily unavailable.');
   const files = await response.json();
-  return normaliseList(files.filter((file) => file.type === 'file').map((file) => ({ name: file.name, path: file.path })));
+  return normaliseList(files.filter((file) => file.type === 'file').map((file) => ({
+    name: file.name,
+    path: file.path,
+    download_url: file.download_url
+  })));
 }
 
 function audioUrl(path) {
@@ -479,8 +501,42 @@ function audioUrl(path) {
   return new URL(encodedPath, document.baseURI).href;
 }
 
+function rawAudioUrl(sound) {
+  if (sound.downloadUrl) return sound.downloadUrl;
+  const encodedPath = sound.path.split('/').map(encodeURIComponent).join('/');
+  return `https://raw.githubusercontent.com/${apiOwner}/${apiRepository}/${BRANCH}/${encodedPath}`;
+}
+
+function failFallbackPlayback(sound, audio) {
+  if (activeSound !== sound) return;
+  stopPlayback();
+  setStatus(`Could not play ${sound.label}.`, 'error');
+}
+
+function retryFallbackFromGitHub(sound, audio) {
+  const rawUrl = rawAudioUrl(sound);
+  if (sound.rawFallbackAttempted || audio.src === rawUrl) return false;
+  sound.rawFallbackAttempted = true;
+  sound.fallbackUrl = rawUrl;
+  audio.src = rawUrl;
+  audio.load();
+  playFallbackAudio(sound, audio);
+  return true;
+}
+
+function playFallbackAudio(sound, audio) {
+  const sourceUrl = audio.src;
+  const playback = audio.play();
+  if (playback && typeof playback.catch === 'function') {
+    playback.catch(() => {
+      if (activeSound !== sound || audio.src !== sourceUrl) return;
+      if (!retryFallbackFromGitHub(sound, audio)) failFallbackPlayback(sound, audio);
+    });
+  }
+}
+
 function createFallbackAudio(sound) {
-  const audio = new Audio(audioUrl(sound.path));
+  const audio = new Audio(sound.fallbackUrl || audioUrl(sound.path));
   audio.preload = 'auto';
   audio.volume = masterVolume;
   audio.addEventListener('ended', () => {
@@ -491,8 +547,7 @@ function createFallbackAudio(sound) {
   });
   audio.addEventListener('error', () => {
     if (activeAudio === audio) {
-      stopPlayback();
-      setStatus(`Could not load: ${sound.label}`, 'error');
+      if (!retryFallbackFromGitHub(sound, audio)) failFallbackPlayback(sound, audio);
     }
   });
   return audio;
@@ -512,19 +567,24 @@ function prepareSoundBuffer(sound) {
 
   updateSoundReadiness(sound, 'loading');
   sound.preparePromise = (async () => {
-    try {
-      const response = await fetch(audioUrl(sound.path), { cache: 'force-cache' });
-      if (!response.ok) throw new Error(`Could not fetch ${sound.name}`);
-      sound.buffer = await audioContext.decodeAudioData(await response.arrayBuffer());
-      updateSoundReadiness(sound, 'ready');
-      return sound.buffer;
-    } catch {
-      updateSoundReadiness(sound, 'stream');
-      return null;
-    } finally {
-      sound.preparePromise = null;
+    const sources = [...new Set([audioUrl(sound.path), sound.downloadUrl || rawAudioUrl(sound)])];
+    for (const sourceUrl of sources) {
+      try {
+        const response = await fetch(sourceUrl, { cache: 'force-cache' });
+        if (!response.ok) continue;
+        sound.buffer = await audioContext.decodeAudioData(await response.arrayBuffer());
+        sound.fallbackUrl = sourceUrl;
+        updateSoundReadiness(sound, 'ready');
+        return sound.buffer;
+      } catch {}
     }
-  })();
+
+    sound.fallbackUrl = rawAudioUrl(sound);
+    updateSoundReadiness(sound, 'stream');
+    return null;
+  })().finally(() => {
+    sound.preparePromise = null;
+  });
   return sound.preparePromise;
 }
 
