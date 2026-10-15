@@ -1,21 +1,21 @@
 # WebSoundboard
 
-Mobilny soundboard hostowany jako statyczna strona GitHub Pages.
+A mobile soundboard hosted as a static GitHub Pages site.
 
-## Uruchomienie
+## Setup
 
-1. W repozytorium otwórz **Settings → Pages**.
-2. Ustaw źródło na branch `main` i katalog `/(root)`.
-3. Po wdrożeniu otwórz `https://pepe-pl.github.io/WebSoundboard/`.
+1. Open **Settings → Pages** in the repository.
+2. Set the source to branch `main` and folder `/(root)`.
+3. After deployment, open `https://pepe-pl.github.io/WebSoundboard/`.
 
-## Dodawanie dźwięków
+## Adding sounds
 
-Wrzuć obsługiwany plik audio do `sounds/` i zrób push do `main`. Workflow **Generate sounds manifest** zaktualizuje `sounds.json`; można go też uruchomić ręcznie w zakładce **Actions**. Przycisk **Odśwież** pobiera aktualną listę bezpośrednio z GitHub API, a gdy API jest niedostępne, ponownie wczytuje manifest.
+Add a supported audio file to `sounds/` and push to `main`. The **Generate sounds manifest** workflow updates `sounds.json`; it can also be run manually from **Actions**. **Refresh** fetches the current file list from GitHub API and falls back to the manifest when the API is unavailable.
 
-Obsługiwane formaty: MP3, WAV, OGG, M4A, AAC i OGA. Nazwa pliku staje się etykietą przycisku.
+Supported formats: MP3, WAV, OGG, M4A, AAC, and OGA. The filename becomes the button label.
 
-Kategorie można tworzyć w aplikacji i przypisywać do nich dźwięki. Są zapisywane w pamięci przeglądarki na danym urządzeniu; nie synchronizują się z GitHubem ani między urządzeniami. Dźwięki pojawiają się od razu, a ich dekodowanie odbywa się niezależnie w tle.
+Create categories in the app and assign sounds to them. Categories are saved in the browser on the current device; they are not synced to GitHub or other devices. Sounds appear immediately while their audio is decoded independently in the background. Category colors can be changed from the category tab or the assignment dialog.
 
-## Telefon i tryb offline
+## Mobile and offline use
 
-W przeglądarce telefonu wybierz **Dodaj do ekranu głównego**. Service worker zapisuje pliki aplikacji i odwiedzone dźwięki w pamięci podręcznej, więc wcześniej wczytane klipy mogą działać także offline. iOS może wymagać dodania skrótu z menu Udostępnij w Safari.
+In your phone browser, choose **Add to Home Screen**. The service worker caches the app and visited sounds so previously loaded clips can work offline. On iOS, add the shortcut from Safari's Share menu.
