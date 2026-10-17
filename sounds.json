@@ -120,12 +120,6 @@
     "type": "audio/mpeg"
   },
   {
-    "name": "shocked-sound-effect.mp3",
-    "path": "sounds/shocked-sound-effect.mp3",
-    "label": "shocked sound effect",
-    "type": "audio/mpeg"
-  },
-  {
     "name": "sike-1.mp3",
     "path": "sounds/sike-1.mp3",
     "label": "sike 1",
