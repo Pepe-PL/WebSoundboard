@@ -72,6 +72,18 @@
     "type": "audio/mpeg"
   },
   {
+    "name": "fortnite-default-dance-bass-boosted.mp3",
+    "path": "sounds/fortnite-default-dance-bass-boosted.mp3",
+    "label": "fortnite default dance bass boosted",
+    "type": "audio/mpeg"
+  },
+  {
+    "name": "fortnite-default-dance.mp3",
+    "path": "sounds/fortnite-default-dance.mp3",
+    "label": "fortnite default dance",
+    "type": "audio/mpeg"
+  },
+  {
     "name": "galaxy-meme.mp3",
     "path": "sounds/galaxy-meme.mp3",
     "label": "galaxy meme",
