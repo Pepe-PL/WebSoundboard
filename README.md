@@ -4,7 +4,7 @@
   <p>A fast, phone-friendly meme soundboard you can make your own.</p>
   <p>
     <a href="https://pepe-pl.github.io/WebSoundboard/">
-      <img src="https://img.shields.io/badge/%F0%9F%8E%A7%20LIVE%20DEMO-Open%20Soundboard-brightgreen?style=for-the-badge&logoColor=white" height="38" alt="Live Demo Soundboard" />
+      <img src="https://img.shields.io/badge/LIVE%20DEMO-Open%20Soundboard-2d5a27?style=for-the-badge&labelColor=333333&color=2d5a27" height="38" alt="Live Demo Soundboard" />
     </a>
   </p>
   <p>
