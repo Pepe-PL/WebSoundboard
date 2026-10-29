@@ -44,7 +44,7 @@ const volumeValue = document.querySelector('#volume-value');
 let sounds = [];
 let audioContext = null;
 let masterGain = null;
-let masterVolume = 0.8;
+let masterVolume = 1;
 let activeSource = null;
 let activeAudio = null;
 let activeSound = null;
@@ -415,18 +415,18 @@ else systemColorScheme.addListener(handleSystemThemeChange);
 try {
   const storedVolume = Number(localStorage.getItem('web-soundboard-volume'));
   if (Number.isFinite(storedVolume) && localStorage.getItem('web-soundboard-volume') !== null) {
-    masterVolume = Math.min(1, Math.max(0, storedVolume));
+    masterVolume = Math.min(5, Math.max(1, storedVolume));
   }
 } catch {}
 
 function setMasterVolume(value, persist = true) {
-  masterVolume = Math.min(1, Math.max(0, Number(value)));
+  masterVolume = Math.min(5, Math.max(1, Number(value)));
   masterVolumeInput.value = String(masterVolume);
   volumeValue.value = `${Math.round(masterVolume * 100)}%`;
   volumeValue.textContent = volumeValue.value;
   if (masterGain && audioContext) masterGain.gain.setTargetAtTime(masterVolume, audioContext.currentTime, 0.015);
   sounds.forEach((sound) => {
-    if (sound.audio) sound.audio.volume = masterVolume;
+    if (sound.audio) sound.audio.volume = sound.audioSource ? 1 : Math.min(1, masterVolume);
   });
   if (persist) {
     try {
@@ -536,9 +536,11 @@ function playFallbackAudio(sound, audio) {
 }
 
 function createFallbackAudio(sound) {
-  const audio = new Audio(sound.fallbackUrl || audioUrl(sound.path));
+  const audio = new Audio();
+  audio.crossOrigin = 'anonymous';
+  audio.src = sound.fallbackUrl || audioUrl(sound.path);
   audio.preload = 'auto';
-  audio.volume = masterVolume;
+  audio.volume = Math.min(1, masterVolume);
   audio.addEventListener('ended', () => {
     if (activeAudio === audio) {
       stopPlayback();
@@ -608,6 +610,7 @@ function prepareSounds(entries) {
     return {
       ...entry,
       audio: previous?.audio || null,
+      audioSource: previous?.audioSource || null,
       buffer: previous?.buffer || null,
       button: null,
       preparePromise: null,
@@ -689,6 +692,13 @@ function playSound(sound, button) {
 
   if (audioContext && sound.prepareState !== 'stream') void prepareSoundBuffer(sound);
   const audio = sound.audio || (sound.audio = createFallbackAudio(sound));
+  if (audioContext && masterGain && !sound.audioSource) {
+    try {
+      sound.audioSource = audioContext.createMediaElementSource(audio);
+      sound.audioSource.connect(masterGain);
+    } catch {}
+  }
+  audio.volume = sound.audioSource ? 1 : Math.min(1, masterVolume);
   activeAudio = audio;
   audio.currentTime = 0;
   const playback = audio.play();
