@@ -3,6 +3,11 @@
   <h1>WebSoundboard</h1>
   <p>A fast, phone-friendly meme soundboard you can make your own.</p>
   <p>
+    <a href="https://pepe-pl.github.io/WebSoundboard/">
+      <img src="https://img.shields.io/badge/%F0%9F%8E%A7%20LIVE%20DEMO-Open%20Soundboard-brightgreen?style=for-the-badge&logoColor=white" height="38" alt="Live Demo Soundboard" />
+    </a>
+  </p>
+  <p>
     <a href="https://github.com/Pepe-PL/WebSoundboard/forks"><img alt="Forks" src="https://img.shields.io/github/forks/Pepe-PL/WebSoundboard" /></a>
   </p>
 </div>
