@@ -15,7 +15,7 @@
   <p>
     <a href="https://github.com/Pepe-PL/WebSoundboard/stargazers"><img src="https://img.shields.io/github/stars/Pepe-PL/WebSoundboard?style=flat-square&color=2ea44f" alt="GitHub Repo Stars" /></a>
     <a href="https://github.com/Pepe-PL/WebSoundboard/network/members"><img src="https://img.shields.io/github/forks/Pepe-PL/WebSoundboard?style=flat-square&color=blue" alt="GitHub Forks" /></a>
-    <a href="LICENSE"><img src="https://img.shields.io/github/license/Pepe-PL/WebSoundboard?style=flat-square&color=orange" alt="GitHub License" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="MIT License" /></a>
     <a href="https://pages.github.com/"><img src="https://img.shields.io/badge/Deploy-GitHub_Pages-222222?style=flat-square&logo=githubpages&logoColor=white" alt="GitHub Pages" /></a>
   </p>
 
