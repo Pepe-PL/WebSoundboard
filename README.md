@@ -178,7 +178,7 @@ Then visit: [**http://localhost:8080**](http://localhost:8080)
 
 ## 📱 Mobile Installation (PWA)
 
-- **iOS (Safari):** Open the soundboard link, tap the **Share** button (`⎋` / ikona udostępniania), then tap **Add to Home Screen**.
+- **iOS (Safari):** Open the soundboard link, tap the **Share** button, then tap **Add to Home Screen**.
 - **Android (Chrome):** Tap the **⋮** menu button in Chrome and select **Install app** or **Add to Home Screen**.
 
 ---
