@@ -38,8 +38,8 @@
       <p>Written in zero-dependency Vanilla JS, HTML5, and CSS3. Loads instantly, runs smooth on any mobile device or desktop browser.</p>
     </td>
     <td width="50%">
-      <h3>📢 Extreme Volume Boost (100%–500%)</h3>
-      <p>Powered by the <b>Web Audio API</b> <code>GainNode</code>. Can boost quiet memes up to <b>5× original amplitude</b> (+14 dB) without browser volume clipping limits.</p>
+      <h3>🤖 Auto-Updating Sounds Pipeline</h3>
+      <p>Powered by GitHub Actions — just drop audio files into <code>sounds/</code> and push. Manifests generate automatically.</p>
     </td>
   </tr>
   <tr>
@@ -54,12 +54,12 @@
   </tr>
   <tr>
     <td width="50%">
-      <h3>🔍 Instant Search & Shortcuts</h3>
-      <p>Search any clip on the fly by pressing <kbd>/</kbd>. Fast keyboard navigation and responsive sound cards with live playback indicators.</p>
+      <h3>📢 Extreme Volume Boost (100%–500%)</h3>
+      <p>Powered by the <b>Web Audio API</b> <code>GainNode</code>. Can boost quiet memes up to <b>5× original amplitude</b> (+14 dB) without browser volume clipping limits.</p>
     </td>
     <td width="50%">
-      <h3>🤖 Auto-Updating Sounds Pipeline</h3>
-      <p>Powered by GitHub Actions — just drop audio files into <code>sounds/</code> and push. Manifests generate automatically.</p>
+      <h3>🔍 Instant Search & Shortcuts</h3>
+      <p>Search any clip on the fly by pressing <kbd>/</kbd>. Fast keyboard navigation and responsive sound cards with live playback indicators.</p>
     </td>
   </tr>
 </table>
