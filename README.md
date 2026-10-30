@@ -27,6 +27,12 @@
 
 <table>
   <tr>
+    <td colspan="2" align="center">
+      <h2>🛠️ 100% Modular & Customizable</h2>
+      <p><b>Make it entirely your own:</b> fork the repo, customize sound categories, pick custom colors, adjust master boost, and drop in your audio files — everything adapts instantly with zero coding needed.</p>
+    </td>
+  </tr>
+  <tr>
     <td width="50%">
       <h3>🚀 Pure Vanilla Performance</h3>
       <p>Written in zero-dependency Vanilla JS, HTML5, and CSS3. Loads instantly, runs smooth on any mobile device or desktop browser.</p>
